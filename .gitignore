@@ -42,3 +42,5 @@ lerna-debug.log*
 
 # OS
 Thumbs.db
+sample-app.js
+.claude/settings.local 2.json
