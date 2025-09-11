@@ -1,6 +1,7 @@
 name = "stats-app"
 main = "functions/_worker.js"
 compatibility_date = "2024-01-01"
+workers_dev = true
 
 # Site configuration for static assets
 [site]

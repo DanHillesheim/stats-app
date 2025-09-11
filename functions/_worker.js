@@ -1,4 +1,7 @@
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
+import manifestJSON from '__STATIC_CONTENT_MANIFEST';
+
+const assetManifest = JSON.parse(manifestJSON);
 
 export default {
   async fetch(request, env, ctx) {
@@ -21,7 +24,7 @@ export default {
       
       return await getAssetFromKV(event, {
         ASSET_NAMESPACE: env.__STATIC_CONTENT,
-        ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST),
+        ASSET_MANIFEST: assetManifest,
       });
     } catch (e) {
       // If asset not found, serve index.html for client-side routing
@@ -34,12 +37,12 @@ export default {
         };
         return await getAssetFromKV(event, {
           ASSET_NAMESPACE: env.__STATIC_CONTENT,
-          ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST),
+          ASSET_MANIFEST: assetManifest,
         });
       }
       
       // Return error response
-      return new Response('Error: ' + e.message, { status: 500 });
+      return new Response('Error: ' + e.message || e.toString(), { status: 500 });
     }
   },
 };
