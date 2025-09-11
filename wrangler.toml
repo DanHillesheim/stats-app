@@ -19,6 +19,6 @@ GROK_MODEL = "grok-4-latest"
 command = "npm run build"
 
 # Routes - update with your domain
-# [[routes]]
-# pattern = "stats-app.janiqueen.us/*"
-# zone_name = "janiqueen.us"
+[[routes]]
+pattern = "janiqueen.us/*"
+zone_name = "janiqueen.us"
