@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Heading, Subheading } from '../components/catalyst/heading'
 import { Text } from '../components/catalyst/text'
 import { Input } from '../components/catalyst/input'
 import { Button } from '../components/catalyst/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/catalyst/table'
-import { Search, Star, StarOff, ChevronDown, ChevronRight } from 'lucide-react'
+import { Search, Star, StarOff, ChevronDown, ChevronRight, Calculator } from 'lucide-react'
 import 'katex/dist/katex.min.css'
 import { InlineMath, BlockMath } from 'react-katex'
 
@@ -40,9 +41,9 @@ const formulas = [
   {
     category: 'Descriptive Statistics',
     items: [
-      { name: 'Mean', formula: '\\bar{x} = \\frac{\\sum x_i}{n}', explanation: 'Sum all values and divide by count', example: 'For [2, 4, 6, 8]: mean = (2+4+6+8)/4 = 5' },
+      { name: 'Mean', formula: '\\bar{x} = \\frac{\\sum x_i}{n}', explanation: 'Sum all values and divide by count', example: 'For [2, 4, 6, 8]: mean = (2+4+6+8)/4 = 5', calculatorId: 'mean' },
       { name: 'Median', formula: '\\text{Middle value when sorted}', explanation: 'Sort data and find middle value', example: 'For [2, 4, 6, 8, 10]: median = 6' },
-      { name: 'Standard Deviation', formula: 's = \\sqrt{\\frac{\\sum(x_i - \\bar{x})^2}{n-1}}', explanation: 'Square root of variance', example: 'Measures typical distance from mean' },
+      { name: 'Standard Deviation', formula: 's = \\sqrt{\\frac{\\sum(x_i - \\bar{x})^2}{n-1}}', explanation: 'Square root of variance', example: 'Measures typical distance from mean', calculatorId: 'std-dev' },
       { name: 'Variance', formula: 's^2 = \\frac{\\sum(x_i - \\bar{x})^2}{n-1}', explanation: 'Average squared deviation from mean', example: 'For sample: divide by n-1 (Bessel\'s correction)' },
       { name: 'Range', formula: '\\text{Max} - \\text{Min}', explanation: 'Difference between largest and smallest', example: 'For [2, 4, 6, 8]: range = 8 - 2 = 6' },
     ]
@@ -58,7 +59,7 @@ const formulas = [
   {
     category: 'Hypothesis Testing',
     items: [
-      { name: 'One-sample t-test', formula: 't = \\frac{\\bar{x} - \\mu_0}{s/\\sqrt{n}}', explanation: 'Compare sample mean to known value', example: 'Test if average height differs from 170cm' },
+      { name: 'One-sample t-test', formula: 't = \\frac{\\bar{x} - \\mu_0}{s/\\sqrt{n}}', explanation: 'Compare sample mean to known value', example: 'Test if average height differs from 170cm', calculatorId: 't-statistic' },
       { name: 'Two-sample t-test', formula: 't = \\frac{\\bar{x}_1 - \\bar{x}_2}{s_p\\sqrt{\\frac{1}{n_1} + \\frac{1}{n_2}}}', explanation: 'Compare means of two groups', example: 'Compare treatment vs control group' },
       { name: 'Chi-square test', formula: '\\chi^2 = \\sum \\frac{(O - E)^2}{E}', explanation: 'Test independence/goodness of fit', example: 'Test if gender and preference are independent' },
       { name: 'ANOVA F-test', formula: 'F = \\frac{MS_{between}}{MS_{within}}', explanation: 'Compare means of 3+ groups', example: 'Test if teaching methods differ in effectiveness' },
@@ -67,7 +68,7 @@ const formulas = [
   {
     category: 'Confidence Intervals',
     items: [
-      { name: 'CI for Mean (σ known)', formula: '\\bar{x} \\pm z_{\\alpha/2} \\cdot \\frac{\\sigma}{\\sqrt{n}}', explanation: 'Use z-score when σ is known', example: '95% CI: mean ± 1.96 × SE' },
+      { name: 'CI for Mean (σ known)', formula: '\\bar{x} \\pm z_{\\alpha/2} \\cdot \\frac{\\sigma}{\\sqrt{n}}', explanation: 'Use z-score when σ is known', example: '95% CI: mean ± 1.96 × SE', calculatorId: 'confidence-interval' },
       { name: 'CI for Mean (σ unknown)', formula: '\\bar{x} \\pm t_{\\alpha/2} \\cdot \\frac{s}{\\sqrt{n}}', explanation: 'Use t-score when σ is unknown', example: 'Use t-table with df = n-1' },
       { name: 'CI for Proportion', formula: '\\hat{p} \\pm z \\cdot \\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}}', explanation: 'Interval for population proportion', example: 'Poll: 60% ± margin of error' },
     ]
@@ -201,7 +202,20 @@ function CheatsheetPage() {
                       </button>
                     </TableCell>
                     <TableCell className="font-bold text-lg text-white">{item.symbol}</TableCell>
-                    <TableCell className="font-medium text-gray-200">{item.name}</TableCell>
+                    <TableCell className="font-medium text-gray-200">
+                      {item.name}
+                      {(item.symbol === 'z' || item.symbol === 't' || item.symbol === 'CI' || item.symbol === 'x̄' || item.symbol === 'σ' || item.symbol === 's') && (
+                        <Link to={`/formula/${
+                          item.symbol === 'z' ? 'z-score' :
+                          item.symbol === 't' ? 't-statistic' :
+                          item.symbol === 'CI' ? 'confidence-interval' :
+                          item.symbol === 'x̄' ? 'mean' :
+                          (item.symbol === 'σ' || item.symbol === 's') ? 'std-dev' : ''
+                        }`} className="ml-2 inline-flex">
+                          <Calculator className="h-3 w-3 text-green-500 hover:text-green-400" />
+                        </Link>
+                      )}
+                    </TableCell>
                     <TableCell className="text-sm text-gray-400">{item.description}</TableCell>
                     <TableCell>
                       {item.formula && <InlineMath math={item.formula} />}
@@ -241,9 +255,19 @@ function CheatsheetPage() {
                   <div className="space-y-6">
                     {section.items.map((item, itemIndex) => (
                       <div key={itemIndex} className="relative pl-4 before:absolute before:left-0 before:top-0 before:h-full before:w-0.5 before:bg-blue-500">
-                        <h4 className="text-sm font-semibold text-white">
-                          {item.name}
-                        </h4>
+                        <div className="flex items-start justify-between">
+                          <h4 className="text-sm font-semibold text-white">
+                            {item.name}
+                          </h4>
+                          {item.calculatorId && (
+                            <Link to={`/formula/${item.calculatorId}`}>
+                              <Button color="green" className="text-xs">
+                                <Calculator className="h-3 w-3" />
+                                Try Calculator
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
                         <div className="my-3">
                           <BlockMath math={item.formula} />
                         </div>

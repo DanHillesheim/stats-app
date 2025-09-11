@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
 import CheatsheetPage from './pages/CheatsheetPage'
 import SolverPage from './pages/SolverPage'
+import FormulaCalculatorPage from './pages/FormulaCalculatorPage'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route index element={<HomePage />} />
         <Route path="cheatsheet" element={<CheatsheetPage />} />
         <Route path="solver" element={<SolverPage />} />
+        <Route path="formula/:formulaId" element={<FormulaCalculatorPage />} />
       </Route>
     </Routes>
   )
