@@ -11,7 +11,10 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:smoke": "vitest run --grep smoke",
-    "test:unit": "vitest run --grep unit"
+    "test:unit": "vitest run --grep unit",
+    "deploy": "npm run build && wrangler deploy --assets dist",
+    "deploy:preview": "npm run build && wrangler deploy --assets dist --env preview",
+    "worker:dev": "wrangler dev --local"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -26,6 +29,7 @@
     "react-router-dom": "^7.0.0"
   },
   "devDependencies": {
+    "@cloudflare/kv-asset-handler": "^0.4.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -39,6 +43,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "vite": "^6.0.5",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.35.0"
   }
 }

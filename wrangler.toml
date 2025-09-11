@@ -1,0 +1,21 @@
+name = "stats-app"
+compatibility_date = "2024-01-01"
+
+# Assets configuration for serving static files
+[assets]
+directory = "./dist"
+
+# Environment variables (set these in Cloudflare dashboard for security)
+# [vars]
+# VITE_GROK_API_KEY = "your_api_key_here"
+# VITE_GROK_API_ENDPOINT = "https://api.x.ai/v1/chat/completions"
+# VITE_GROK_MODEL = "grok-4-latest"
+
+# Build configuration
+[build]
+command = "npm run build"
+
+# Routes - update with your domain
+# [[routes]]
+# pattern = "stats-app.janiqueen.us/*"
+# zone_name = "janiqueen.us"
