@@ -1,15 +1,17 @@
 name = "stats-app"
+main = "functions/_worker.js"
 compatibility_date = "2024-01-01"
 
-# Assets configuration for serving static files
-[assets]
-directory = "./dist"
+# Site configuration for static assets
+[site]
+bucket = "./dist"
 
 # Environment variables (set these in Cloudflare dashboard for security)
+# These will be available to your Worker functions
 # [vars]
-# VITE_GROK_API_KEY = "your_api_key_here"
-# VITE_GROK_API_ENDPOINT = "https://api.x.ai/v1/chat/completions"
-# VITE_GROK_MODEL = "grok-4-latest"
+# GROK_API_KEY = "your_api_key_here"
+# GROK_API_ENDPOINT = "https://api.x.ai/v1/chat/completions"
+# GROK_MODEL = "grok-4-latest"
 
 # Build configuration
 [build]

@@ -19,17 +19,25 @@ function SolverPage() {
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false)
 
   useEffect(() => {
-    // Check for API key in environment variable first
-    const envKey = import.meta.env.VITE_GROK_API_KEY
-    if (envKey && envKey !== 'your_api_key_here' && envKey !== '') {
-      setApiKey(envKey)
+    // Check if we're in production (Cloudflare Workers)
+    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    
+    if (isProduction) {
+      // In production, we use the proxy endpoint, no need for client-side API key
+      setShowApiKeyDialog(false)
     } else {
-      // Fall back to localStorage
-      const savedKey = localStorage.getItem('grok-api-key')
-      if (savedKey) {
-        setApiKey(savedKey)
+      // In development, check for API key
+      const envKey = import.meta.env.VITE_GROK_API_KEY
+      if (envKey && envKey !== 'your_api_key_here' && envKey !== '') {
+        setApiKey(envKey)
       } else {
-        setShowApiKeyDialog(true)
+        // Fall back to localStorage
+        const savedKey = localStorage.getItem('grok-api-key')
+        if (savedKey) {
+          setApiKey(savedKey)
+        } else {
+          setShowApiKeyDialog(true)
+        }
       }
     }
 
@@ -50,7 +58,11 @@ function SolverPage() {
       return
     }
 
-    if (!apiKey) {
+    // Check if we're in production (Cloudflare Workers)
+    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    
+    // In production, use the proxy endpoint; in development, check for API key
+    if (!isProduction && !apiKey) {
       setShowApiKeyDialog(true)
       return
     }
@@ -59,31 +71,59 @@ function SolverPage() {
     setError(null)
 
     try {
-      const apiEndpoint = import.meta.env.VITE_GROK_API_ENDPOINT || 'https://api.x.ai/v1/chat/completions'
-      const model = import.meta.env.VITE_GROK_MODEL || 'grok-4-latest'
+      let response;
       
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a statistics tutor. Provide step-by-step solutions with clear explanations and formulas. Use LaTeX notation for mathematical expressions (wrap inline math in $ and block math in $$). Structure your response with clear sections: Solution, Explanation, and Final Answer.'
-            },
-            {
-              role: 'user',
-              content: `Solve this statistics problem step-by-step: ${problem}`
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000
+      if (isProduction) {
+        // Use the Worker proxy endpoint in production
+        response = await fetch('/api/grok', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: import.meta.env.VITE_GROK_MODEL || 'grok-4-latest',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a statistics tutor. Provide step-by-step solutions with clear explanations and formulas. Use LaTeX notation for mathematical expressions (wrap inline math in $ and block math in $$). Structure your response with clear sections: Solution, Explanation, and Final Answer.'
+              },
+              {
+                role: 'user',
+                content: `Solve this statistics problem step-by-step: ${problem}`
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 2000
+          })
         })
-      })
+      } else {
+        // Use direct API call in development
+        const apiEndpoint = import.meta.env.VITE_GROK_API_ENDPOINT || 'https://api.x.ai/v1/chat/completions'
+        const model = import.meta.env.VITE_GROK_MODEL || 'grok-4-latest'
+        
+        response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a statistics tutor. Provide step-by-step solutions with clear explanations and formulas. Use LaTeX notation for mathematical expressions (wrap inline math in $ and block math in $$). Structure your response with clear sections: Solution, Explanation, and Final Answer.'
+              },
+              {
+                role: 'user',
+                content: `Solve this statistics problem step-by-step: ${problem}`
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 2000
+          })
+        })
+      }
 
       if (!response.ok) {
         throw new Error(`API Error: ${response.status}`)

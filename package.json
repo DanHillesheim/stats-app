@@ -12,8 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "test:smoke": "vitest run --grep smoke",
     "test:unit": "vitest run --grep unit",
-    "deploy": "npm run build && wrangler deploy --assets dist",
-    "deploy:preview": "npm run build && wrangler deploy --assets dist --env preview",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:preview": "npm run build && wrangler deploy --env preview",
     "worker:dev": "wrangler dev --local"
   },
   "dependencies": {
